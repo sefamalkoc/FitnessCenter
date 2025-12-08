@@ -1,0 +1,8 @@
+# Visual Studio temporary files and build artifacts
+.vs/
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
