@@ -1,9 +1,8 @@
-namespace FitnessCenter.Models
-{
-    public class ErrorViewModel
-    {
-        public string? RequestId { get; set; }
+namespace FitnessCenter.Models;
 
-        public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
-    }
+public class ErrorViewModel
+{
+    public string? RequestId { get; set; }
+
+    public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
 }

@@ -3,6 +3,10 @@
   "WorkspaceRootPath": "C:\\Users\\SEFA MALKO\u00C7\\Desktop\\wep proje \u00F6devi\\FitnessCenter\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{7F4CFA3A-8705-4D17-8C52-D5EF73DE9405}|FitnessCenter.csproj|c:\\users\\sefa malko\u00E7\\desktop\\wep proje \u00F6devi\\fitnesscenter\\controllers\\traninerscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{7F4CFA3A-8705-4D17-8C52-D5EF73DE9405}|FitnessCenter.csproj|solutionrelative:controllers\\traninerscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{7F4CFA3A-8705-4D17-8C52-D5EF73DE9405}|FitnessCenter.csproj|c:\\users\\sefa malko\u00E7\\desktop\\wep proje \u00F6devi\\fitnesscenter\\controllers\\servicescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{7F4CFA3A-8705-4D17-8C52-D5EF73DE9405}|FitnessCenter.csproj|solutionrelative:controllers\\servicescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -26,11 +30,24 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 3,
+          "SelectedChildIndex": 0,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
+              "Title": "TraninersController.cs",
+              "DocumentMoniker": "C:\\Users\\SEFA MALKO\u00C7\\Desktop\\wep proje \u00F6devi\\FitnessCenter\\Controllers\\TraninersController.cs",
+              "RelativeDocumentMoniker": "Controllers\\TraninersController.cs",
+              "ToolTip": "C:\\Users\\SEFA MALKO\u00C7\\Desktop\\wep proje \u00F6devi\\FitnessCenter\\Controllers\\TraninersController.cs",
+              "RelativeToolTip": "Controllers\\TraninersController.cs",
+              "ViewState": "AgIAAH4AAAAAAAAAAAAzwI8AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-13T17:44:57.07Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
               "Title": "LoginController.cs",
               "DocumentMoniker": "C:\\Users\\SEFA MALKO\u00C7\\Desktop\\wep proje \u00F6devi\\FitnessCenter\\Controllers\\LoginController.cs",
               "RelativeDocumentMoniker": "Controllers\\LoginController.cs",
@@ -38,12 +55,11 @@
               "RelativeToolTip": "Controllers\\LoginController.cs",
               "ViewState": "AgIAAH0AAAAAAAAAAAAqwJoAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-09T20:56:11.536Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-09T20:56:11.536Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": ".gitignore",
               "DocumentMoniker": "C:\\Users\\SEFA MALKO\u00C7\\Desktop\\wep proje \u00F6devi\\FitnessCenter\\.gitignore",
               "RelativeDocumentMoniker": ".gitignore",
@@ -55,7 +71,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "AppointmentsController.cs",
               "DocumentMoniker": "C:\\Users\\SEFA MALKO\u00C7\\Desktop\\wep proje \u00F6devi\\FitnessCenter\\Controllers\\AppointmentsController.cs",
               "RelativeDocumentMoniker": "Controllers\\AppointmentsController.cs",
@@ -63,12 +79,11 @@
               "RelativeToolTip": "Controllers\\AppointmentsController.cs",
               "ViewState": "AgIAAP0AAAAAAAAAAAAAwBMBAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-08T15:57:25.542Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-08T15:57:25.542Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "ServicesController.cs",
               "DocumentMoniker": "C:\\Users\\SEFA MALKO\u00C7\\Desktop\\wep proje \u00F6devi\\FitnessCenter\\Controllers\\ServicesController.cs",
               "RelativeDocumentMoniker": "Controllers\\ServicesController.cs",
