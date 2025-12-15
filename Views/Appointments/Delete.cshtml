@@ -1,0 +1,66 @@
+@model FitnessCenter.Models.Appointment
+
+@{
+    ViewData["Title"] = "Randevuyu Sil";
+}
+
+<div class="container mt-5">
+    <h2>Randevuyu Sil</h2>
+    <hr />
+    
+    <div class="alert alert-warning">
+        <h5><i class="bi bi-exclamation-triangle"></i> Silme İşlemini Onaylayın</h5>
+        <p>Bu randevuyu silmek istediğinize emin misiniz?</p>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">Üye</dt>
+                <dd class="col-sm-9">@Model.Member?.FullName</dd>
+
+                <dt class="col-sm-3">Tarih</dt>
+                <dd class="col-sm-9">@Model.Date.ToString("dd.MM.yyyy")</dd>
+
+                <dt class="col-sm-3">Saat</dt>
+                <dd class="col-sm-9">@Model.Time.ToString(@"hh\:mm")</dd>
+
+                <dt class="col-sm-3">Hizmet</dt>
+                <dd class="col-sm-9">@Model.Service?.Name</dd>
+
+                <dt class="col-sm-3">Antrenör</dt>
+                <dd class="col-sm-9">@Model.Trainer?.Name</dd>
+
+                <dt class="col-sm-3">Durum</dt>
+                <dd class="col-sm-9">
+                    <span class="badge bg-@(Model.Status == FitnessCenter.Models.AppointmentStatus.Approved ? "success" : 
+                                          Model.Status == FitnessCenter.Models.AppointmentStatus.Pending ? "warning" :
+                                          Model.Status == FitnessCenter.Models.AppointmentStatus.Cancelled ? "danger" : "secondary")">
+                        @if(Model.Status == FitnessCenter.Models.AppointmentStatus.Approved)
+                        {
+                            <text>Onaylandı</text>
+                        }
+                        else if(Model.Status == FitnessCenter.Models.AppointmentStatus.Pending)
+                        {
+                            <text>Beklemede</text>
+                        }
+                        else if(Model.Status == FitnessCenter.Models.AppointmentStatus.Cancelled)
+                        {
+                            <text>İptal Edildi</text>
+                        }
+                        else
+                        {
+                            @Model.Status
+                        }
+                    </span>
+                </dd>
+            </dl>
+        </div>
+    </div>
+    
+    <form asp-action="Delete" class="mt-3">
+        <input type="hidden" asp-for="Id" />
+        <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i> Sil</button>
+        <a asp-action="Index" class="btn btn-secondary">İptal</a>
+    </form>
+</div>

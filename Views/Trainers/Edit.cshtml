@@ -1,0 +1,107 @@
+@model FitnessCenter.Models.Trainer
+
+@{
+    ViewData["Title"] = "Edit Trainer";
+}
+
+<h1>Edit Trainer</h1>
+
+<h4>Trainer</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group mb-3">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label class="control-label">Müsaitlik Durumu</label>
+                <input asp-for="Availability" type="hidden" id="AvailabilityInput" />
+                
+                <div class="d-flex align-items-center gap-2">
+                    <select id="StartHour" class="form-select">
+                        <option value="">Başlangıç</option>
+                        @for (int i = 9; i <= 22; i++)
+                        {
+                            <option value="@i.ToString("00"):00">@i.ToString("00"):00</option>
+                        }
+                    </select>
+                    <span>-</span>
+                    <select id="EndHour" class="form-select">
+                        <option value="">Bitiş</option>
+                        @for (int i = 9; i <= 22; i++)
+                        {
+                            <option value="@i.ToString("00"):00">@i.ToString("00"):00</option>
+                        }
+                    </select>
+                </div>
+                <span asp-validation-for="Availability" class="text-danger"></span>
+            </div>
+
+            <script>
+                document.addEventListener("DOMContentLoaded", function() {
+                    var startHour = document.getElementById("StartHour");
+                    var endHour = document.getElementById("EndHour");
+                    var availabilityInput = document.getElementById("AvailabilityInput");
+
+                    // Parse existing value
+                    if (availabilityInput.value) {
+                        var parts = availabilityInput.value.split(" - ");
+                        if (parts.length === 2) {
+                            startHour.value = parts[0];
+                            endHour.value = parts[1];
+                        }
+                    }
+
+                    function updateAvailability() {
+                        if (startHour.value && endHour.value) {
+                            if (startHour.value >= endHour.value) {
+                                alert("Bitiş saati, başlangıç saatinden sonra olmalıdır!");
+                                endHour.value = ""; // Reset end hour
+                                availabilityInput.value = "";
+                                return;
+                            }
+                            availabilityInput.value = startHour.value + " - " + endHour.value;
+                        } else {
+                            availabilityInput.value = "";
+                        }
+                    }
+
+                    startHour.addEventListener("change", updateAvailability);
+                    endHour.addEventListener("change", updateAvailability);
+                });
+            </script>
+            
+            <div class="form-group mb-3">
+                <label class="control-label">Specialties</label>
+                <div class="card p-2">
+                    @if (ViewData["Services"] is List<FitnessCenter.Models.Service> services)
+                    {
+                        foreach (var service in services)
+                        {
+                            bool isChecked = Model.Specialties.Any(s => s.Id == service.Id);
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="sentSelectedServices" value="@service.Id" id="service_@service.Id" @(isChecked ? "checked" : "")>
+                                <label class="form-check-label" for="service_@service.Id">
+                                    @service.Name
+                                </label>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+                <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

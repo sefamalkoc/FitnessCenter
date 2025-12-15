@@ -1,0 +1,41 @@
+@model FitnessCenter.Models.RegisterViewModel
+@{
+    ViewData["Title"] = "Kayıt Ol";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-4">
+        <form asp-action="Register" method="post">
+            <h2>Yeni Hesap Oluştur</h2>
+            <hr />
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            
+            <div class="form-floating mb-3">
+                <input asp-for="Email" class="form-control" autocomplete="username" aria-required="true" placeholder="isim@ornek.com" />
+                <label asp-for="Email">E-posta</label>
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
+                <input asp-for="FullName" class="form-control" placeholder="Ad Soyad" />
+                <label asp-for="FullName">Ad Soyad</label>
+                <span asp-validation-for="FullName" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
+                <input asp-for="Password" type="password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="şifre" />
+                <label asp-for="Password">Şifre</label>
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <button type="submit" class="w-100 btn btn-lg btn-primary">Kayıt Ol</button>
+            
+            <div class="mt-3">
+                <p>
+                    Zaten hesabınız var mı? <a asp-action="Login">Giriş Yap</a>
+                </p>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

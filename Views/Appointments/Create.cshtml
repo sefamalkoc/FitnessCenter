@@ -1,0 +1,187 @@
+@model FitnessCenter.Models.Appointment
+
+@{
+    ViewData["Title"] = "Randevu Al";
+}
+
+<div class="container mt-5">
+    <h2>Randevu Oluştur</h2>
+    <hr />
+    <div class="row">
+        <div class="col-md-6">
+            <form asp-action="Create" method="post">
+                <div asp-validation-summary="All" class="text-danger mb-3"></div>
+                
+                <div class="mb-3">
+                    <label asp-for="Date" class="form-label">Tarih <span class="text-danger">*</span></label>
+                    <input asp-for="Date" class="form-control" type="date" min="@DateTime.Now.ToString("yyyy-MM-dd")" max="@DateTime.Now.AddDays(30).ToString("yyyy-MM-dd")" required />
+                    <span asp-validation-for="Date" class="text-danger"></span>
+                    <small class="text-muted">En fazla 30 gün sonrasına randevu alabilirsiniz.</small>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Time" class="form-label">Saat <span class="text-danger">*</span></label>
+                    <select asp-for="Time" class="form-select" required>
+                        <option value="">-- Saat seçiniz --</option>
+                        <option value="09:00:00">09:00</option>
+                        <option value="10:00:00">10:00</option>
+                        <option value="11:00:00">11:00</option>
+                        <option value="12:00:00">12:00</option>
+                        <option value="13:00:00">13:00</option>
+                        <option value="14:00:00">14:00</option>
+                        <option value="15:00:00">15:00</option>
+                        <option value="16:00:00">16:00</option>
+                        <option value="17:00:00">17:00</option>
+                        <option value="18:00:00">18:00</option>
+                        <option value="19:00:00">19:00</option>
+                        <option value="20:00:00">20:00</option>
+                        <option value="21:00:00">21:00</option>
+                        <option value="22:00:00">22:00</option>
+                    </select>
+                    <span asp-validation-for="Time" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ServiceId" class="form-label">Hizmet <span class="text-danger">*</span></label>
+                    <select asp-for="ServiceId" class="form-select" asp-items="ViewBag.ServiceId" required>
+                        <option value="">-- Hizmet seçiniz --</option>
+                    </select>
+                    <span asp-validation-for="ServiceId" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="TrainerId" class="form-label">Antrenör <span class="text-danger">*</span></label>
+                    <select asp-for="TrainerId" class="form-select" asp-items="ViewBag.TrainerId" required>
+                        <option value="">-- Antrenör seçiniz --</option>
+                    </select>
+                    <span asp-validation-for="TrainerId" class="text-danger"></span>
+                </div>
+                
+                <div class="mb-3">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="bi bi-calendar-check"></i> Randevu Al
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary btn-lg">
+                        <i class="bi bi-arrow-left"></i> Listeye Dön
+                    </a>
+                </div>
+            </form>
+        </div>
+        <div class="col-md-6">
+            <!-- Mock AI Suggestion -->
+            <div class="alert alert-info">
+                <h5><i class="bi bi-lightbulb"></i> Yapay Zeka Önerisi</h5>
+                <p>Profilinize göre, uzman antrenörlerimizden biriyle <strong>Pilates</strong> seansı denemenizi öneriyoruz!</p>
+            </div>
+
+            <!-- API Data Area -->
+            <div id="api-results" class="mt-4">
+                <h6>Müsait Antrenörler (API'den):</h6>
+                <ul id="trainer-list" class="list-group">
+                    <!-- Loaded via AJAX -->
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <!-- Flatpickr CSS & JS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/tr.js"></script>
+
+    <style>
+        /* Flatpickr Özelleştirme: Seçilebilir günleri koyulaştır */
+        .flatpickr-day:not(.flatpickr-disabled) {
+            background-color: #e6e6e6; /* Hafif gri/siyah arka plan */
+            font-weight: bold;
+            color: #000;
+        }
+        .flatpickr-day.selected {
+            background-color: #0d6efd !important; /* Bootstrap Primary */
+            color: #fff !important;
+        }
+    </style>
+    
+    <script>
+        $(document).ready(function() {
+            // Flatpickr Kurulumu
+            flatpickr("#Date", {
+                locale: "tr",
+                minDate: "today",
+                maxDate: new Date().fp_incr(30), // Bugün + 30 gün
+                dateFormat: "Y-m-d",
+                disableMobile: "true" // Mobilde de flatpickr görünsün (tema için)
+            });
+
+            var serviceSelect = $("#ServiceId");
+            var trainerSelect = $("#TrainerId");
+
+            // Hizmet seçildiğinde antrenörleri getir
+            serviceSelect.change(function() {
+                var serviceId = $(this).val();
+
+                // Listeyi temizle ve varsayılanı ekle
+                trainerSelect.empty();
+                trainerSelect.append('<option value="">-- Antrenör seçiniz --</option>');
+
+                if (serviceId) {
+                    trainerSelect.prop('disabled', true); // Yüklenirken devre dışı bırak
+                    $.getJSON("/Appointments/GetTrainersByService", { serviceId: serviceId }, function(data) {
+                        $.each(data, function(i, item) {
+                            // Store availability in data attribute
+                            var option = $('<option>').val(item.id).text(item.name).attr('data-availability', item.availability);
+                            trainerSelect.append(option);
+                        });
+                        trainerSelect.prop('disabled', false); // Yüklendi, aktif et
+                    });
+                }
+            });
+            
+            // Antrenör seçildiğinde saatleri filtrele
+            trainerSelect.change(function() {
+                var selectedOption = $(this).find('option:selected');
+                var availability = selectedOption.attr('data-availability');
+                var timeSelect = $("#Time");
+                
+                // Reset options visibility
+                timeSelect.find('option').prop('disabled', false).text(function() { return $(this).val().substring(0, 5); }); // Reset text
+                
+                if (availability && availability.includes(" - ")) {
+                    var parts = availability.split(" - ");
+                    var start = parts[0]; // HH:mm
+                    var end = parts[1]; // HH:mm
+                    
+                    // Show info message
+                     // Remove old alert if exists
+                     $("#availability-alert").remove();
+                     $('<div id="availability-alert" class="alert alert-warning mt-2 py-1"><small>Antrenör çalışma saatleri: ' + availability + '</small></div>').insertAfter(trainerSelect);
+
+                    timeSelect.find('option').each(function() {
+                        var timeVal = $(this).val();
+                        if (timeVal) { // Skip placeholder
+                             // Simple string comparison works for HH:mm:ss vs HH:mm because of ISO format
+                             // timeVal is HH:mm:ss. Start/End is HH:mm
+                             var timeValShort = timeVal.substring(0, 5);
+                             
+                             if (timeValShort < start || timeValShort > end) {
+                                 $(this).prop('disabled', true).text(timeValShort + " (Müsait Değil)");
+                             }
+                        }
+                    });
+                } else {
+                     $("#availability-alert").remove();
+                }
+            });
+
+            // Sayfa ilk yüklendiğinde:
+            // Eğer hizmet seçili DEĞİLSE (Yeni Kayıt), antrenör listesini temizle
+            if (!serviceSelect.val()) {
+                trainerSelect.find('option:not(:first)').remove();
+            }
+        });
+    </script>
+}

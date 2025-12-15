@@ -1,0 +1,162 @@
+@model FitnessCenter.Models.Appointment
+
+@{
+    ViewData["Title"] = "Randevuyu Düzenle";
+}
+
+<div class="container mt-5">
+    <h2>Randevuyu Düzenle</h2>
+    <hr />
+    <div class="row">
+        <div class="col-md-8">
+            <form asp-action="Edit">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="Id" />
+                
+                <div class="mb-3">
+                    <label asp-for="Date" class="form-label">Tarih</label>
+                    <input asp-for="Date" class="form-control" type="date" min="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                    <span asp-validation-for="Date" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Time" class="form-label">Saat</label>
+                    <select asp-for="Time" class="form-select">
+                        <option value="">Saat seçiniz</option>
+                        <option value="09:00:00">09:00</option>
+                        <option value="10:00:00">10:00</option>
+                        <option value="11:00:00">11:00</option>
+                        <option value="12:00:00">12:00</option>
+                        <option value="13:00:00">13:00</option>
+                        <option value="14:00:00">14:00</option>
+                        <option value="15:00:00">15:00</option>
+                        <option value="16:00:00">16:00</option>
+                        <option value="17:00:00">17:00</option>
+                    </select>
+                    <span asp-validation-for="Time" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ServiceId" class="form-label">Hizmet</label>
+                    <select asp-for="ServiceId" class="form-select" asp-items="ViewBag.ServiceId">
+                        <option value="">Hizmet seçiniz</option>
+                    </select>
+                    <span asp-validation-for="ServiceId" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="TrainerId" class="form-label">Antrenör</label>
+                    <select asp-for="TrainerId" class="form-select" asp-items="ViewBag.TrainerId">
+                        <option value="">Antrenör seçiniz</option>
+                    </select>
+                    <span asp-validation-for="TrainerId" class="text-danger"></span>
+                </div>
+
+                @if (User.IsInRole("Admin"))
+                {
+                    <div class="mb-3">
+                        <label asp-for="Status" class="form-label">Durum</label>
+                        <select asp-for="Status" class="form-select" asp-items="Html.GetEnumSelectList<FitnessCenter.Models.AppointmentStatus>()"></select>
+                        <span asp-validation-for="Status" class="text-danger"></span>
+                    </div>
+                }
+                else
+                {
+                    <input type="hidden" asp-for="Status" />
+                }
+                
+                <div class="mb-3">
+                    <input type="submit" value="Değişiklikleri Kaydet" class="btn btn-primary" />
+                    <a asp-action="Index" class="btn btn-secondary">İptal</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        $(document).ready(function() {
+            var serviceSelect = $("#ServiceId");
+            var trainerSelect = $("#TrainerId");
+
+            function loadTrainers(serviceId, selectedTrainerId) {
+                trainerSelect.prop('disabled', true);
+                $.getJSON("/Appointments/GetTrainersByService", { serviceId: serviceId }, function(data) {
+                    trainerSelect.empty();
+                    trainerSelect.append('<option value="">-- Antrenör seçiniz --</option>');
+                    
+                    $.each(data, function(i, item) {
+                         var option = $('<option>').val(item.id).text(item.name).attr('data-availability', item.availability);
+                         trainerSelect.append(option);
+                    });
+                    
+                    if (selectedTrainerId) {
+                        trainerSelect.val(selectedTrainerId);
+                    }
+                    
+                    trainerSelect.prop('disabled', false);
+                    trainerSelect.trigger('change'); // Trigger filtering
+                });
+            }
+
+            // Hizmet seçildiğinde antrenörleri getir
+            serviceSelect.change(function() {
+                var serviceId = $(this).val();
+                if (serviceId) {
+                    loadTrainers(serviceId, null);
+                } else {
+                    trainerSelect.empty();
+                    trainerSelect.append('<option value="">-- Antrenör seçiniz --</option>');
+                }
+            });
+
+            // Antrenör seçildiğinde saatleri filtrele
+            trainerSelect.change(function() {
+                var selectedOption = $(this).find('option:selected');
+                var availability = selectedOption.attr('data-availability');
+                var timeSelect = $("#Time");
+                var currentSelectedTime = timeSelect.val(); // Keep currently selected time if valid (or to show it's invalid)
+                
+                // Reset options visibility
+                timeSelect.find('option').prop('disabled', false).text(function() { return $(this).val().substring(0, 5); }); 
+                
+                if (availability && availability.includes(" - ")) {
+                    var parts = availability.split(" - ");
+                    var start = parts[0];
+                    var end = parts[1];
+                    
+                     $("#availability-alert").remove();
+                     $('<div id="availability-alert" class="alert alert-warning mt-2 py-1"><small>Antrenör çalışma saatleri: ' + availability + '</small></div>').insertAfter(trainerSelect);
+
+                    timeSelect.find('option').each(function() {
+                        var timeVal = $(this).val();
+                        if (timeVal) {
+                             var timeValShort = timeVal.substring(0, 5);
+                             if (timeValShort < start || timeValShort > end) {
+                                 $(this).prop('disabled', true).text(timeValShort + " (Müsait Değil)");
+                             }
+                        }
+                    });
+                } else {
+                     $("#availability-alert").remove();
+                }
+            });
+
+            // Sayfa ilk yüklendiğinde
+            var initialServiceId = serviceSelect.val();
+            var initialTrainerId = trainerSelect.val();
+            
+            if (initialServiceId) {
+                // We need to reload to get availability attributes, ensuring we keep the selected trainer
+                loadTrainers(initialServiceId, initialTrainerId);
+            } else {
+                if (!serviceSelect.val()) {
+                    trainerSelect.find('option:not(:first)').remove();
+                }
+            }
+        });
+    </script>
+}
