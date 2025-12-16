@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FitnessCenter.Data;
@@ -65,7 +65,7 @@ namespace FitnessCenter.Controllers
             if (id == null) return NotFound();
             var trainer = await _context.Trainers.Include(t => t.Specialties).FirstOrDefaultAsync(x => x.Id == id);
             if (trainer == null) return NotFound();
-
+            
             ViewData["Services"] = _context.Services.ToList();
             return View(trainer);
         }
@@ -85,7 +85,7 @@ namespace FitnessCenter.Controllers
 
                     trainerToUpdate.Name = trainer.Name;
                     trainerToUpdate.Availability = trainer.Availability;
-
+                    
                     // Update Specialties
                     trainerToUpdate.Specialties.Clear();
                     if (sentSelectedServices != null)

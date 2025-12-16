@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -27,6 +27,7 @@ namespace FitnessCenter.Controllers
             if (user == null) return Challenge();
 
             var appointments = _context.Appointments
+                .Include(a => a.Member)
                 .Include(a => a.Trainer)
                 .Include(a => a.Service)
                 .AsQueryable();
@@ -59,37 +60,72 @@ namespace FitnessCenter.Controllers
             appointment.MemberId = user.Id;
             appointment.Status = AppointmentStatus.Pending;
 
+            // Remove MemberId from ModelState since we're setting it manually
+            ModelState.Remove("MemberId");
+
             // Manual Validation Logic
             if (ModelState.IsValid)
             {
+                // Date Range Check
+                if (appointment.Date.Date > DateTime.Now.Date.AddDays(30))
+                {
+                    ModelState.AddModelError("Date", "En fazla 30 gün sonrasına randevu alabilirsiniz.");
+                }
+                else if (appointment.Date.Date < DateTime.Now.Date)
+                {
+                    ModelState.AddModelError("Date", "Geçmiş bir tarihe randevu alamazsınız.");
+                }
+
+                // If valid so far, proceed to other checks
+                // If valid so far, proceed to other checks
                 // 1. Check if Trainer is available (Simple: Not booked at that time)
-                bool isConflict = await _context.Appointments.AnyAsync(a =>
-                    a.TrainerId == appointment.TrainerId &&
-                    a.Date.Date == appointment.Date.Date &&
+                bool isConflict = await _context.Appointments.AnyAsync(a => 
+                    a.TrainerId == appointment.TrainerId && 
+                    a.Date.Date == appointment.Date.Date && 
                     a.Time == appointment.Time &&
                     a.Status != AppointmentStatus.Cancelled);
 
                 if (isConflict)
                 {
-                    ModelState.AddModelError("", "The selected trainer is already booked for this time slot.");
+                    ModelState.AddModelError("", "Seçilen antrenör bu saat için zaten rezerve edilmiş.");
                 }
                 else
                 {
-                    // 2. Ideally check Trainer Working Hours here (Mock check)
-                    // If we had parsed WorkingHours, we would check. For now, assume ok or check simple range (9-17)
-                    if (appointment.Time.Hours < 9 || appointment.Time.Hours > 17)
+                    // 2. Check Trainer Working Hours
+                    var trainer = await _context.Trainers.FindAsync(appointment.TrainerId);
+                    bool isTimeValid = true;
+                    if (trainer != null && !string.IsNullOrEmpty(trainer.Availability))
                     {
-                        ModelState.AddModelError("Time", "Appointments must be between 09:00 and 17:00.");
+                         // Expected format "HH:mm - HH:mm"
+                         var parts = trainer.Availability.Split(" - ");
+                         if (parts.Length == 2 && 
+                             TimeSpan.TryParse(parts[0], out TimeSpan start) && 
+                             TimeSpan.TryParse(parts[1], out TimeSpan end))
+                         {
+                             if (appointment.Time < start || appointment.Time > end)
+                             {
+                                 isTimeValid = false;
+                                 ModelState.AddModelError("Time", $"Seçilen antrenör sadece {parts[0]} ile {parts[1]} arasında hizmet vermektedir.");
+                             }
+                         }
                     }
-                    else
+
+                    if (isTimeValid) 
                     {
-                        _context.Add(appointment);
-                        await _context.SaveChangesAsync();
-                        return RedirectToAction(nameof(Index));
+                        if (appointment.Time.Hours < 9 || appointment.Time.Hours > 22)
+                        {
+                             ModelState.AddModelError("Time", "Randevular 09:00 ile 22:00 arasında olmalıdır.");
+                        }
+                        else 
+                        {
+                            _context.Add(appointment);
+                            await _context.SaveChangesAsync();
+                            return RedirectToAction(nameof(Index));
+                        }
                     }
                 }
             }
-
+            
             ViewData["ServiceId"] = new SelectList(_context.Services, "Id", "Name", appointment.ServiceId);
             ViewData["TrainerId"] = new SelectList(_context.Trainers, "Id", "Name", appointment.TrainerId);
             return View(appointment);
@@ -106,7 +142,7 @@ namespace FitnessCenter.Controllers
             // Authorization check
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return Challenge();
-
+            
             if (!User.IsInRole("Admin") && appointment.MemberId != user.Id)
             {
                 return Forbid();
@@ -151,11 +187,33 @@ namespace FitnessCenter.Controllers
 
                 if (isConflict)
                 {
-                    ModelState.AddModelError("", "The selected trainer is already booked for this time slot.");
+                    ModelState.AddModelError("", "Seçilen antrenör bu saat için zaten rezerve edilmiş.");
                 }
-                else if (appointment.Time.Hours < 9 || appointment.Time.Hours > 17)
+                // Check Trainer Working Hours
+                var trainer = await _context.Trainers.FindAsync(appointment.TrainerId);
+                bool isTimeValid = true;
+                if (trainer != null && !string.IsNullOrEmpty(trainer.Availability))
                 {
-                    ModelState.AddModelError("Time", "Appointments must be between 09:00 and 17:00.");
+                     var parts = trainer.Availability.Split(" - ");
+                     if (parts.Length == 2 && 
+                         TimeSpan.TryParse(parts[0], out TimeSpan start) && 
+                         TimeSpan.TryParse(parts[1], out TimeSpan end))
+                     {
+                         if (appointment.Time < start || appointment.Time > end)
+                         {
+                             isTimeValid = false;
+                             ModelState.AddModelError("Time", $"Seçilen antrenör sadece {parts[0]} ile {parts[1]} arasında hizmet vermektedir.");
+                         }
+                     }
+                }
+
+                if (!isTimeValid) 
+                {
+                    // Error already added
+                }
+                else if (appointment.Time.Hours < 9 || appointment.Time.Hours > 22)
+                {
+                    ModelState.AddModelError("Time", "Randevular 09:00 ile 22:00 arasında olmalıdır.");
                 }
                 else
                 {
@@ -270,6 +328,18 @@ namespace FitnessCenter.Controllers
         private bool AppointmentExists(int id)
         {
             return _context.Appointments.Any(e => e.Id == id);
+        }
+
+        // GET: Appointments/GetTrainersByService
+        [HttpGet]
+        public async Task<JsonResult> GetTrainersByService(int serviceId)
+        {
+            var trainers = await _context.Trainers
+                .Where(t => t.Specialties.Any(s => s.Id == serviceId))
+                .Select(t => new { id = t.Id, name = t.Name, availability = t.Availability })
+                .ToListAsync();
+
+            return Json(trainers);
         }
     }
 }

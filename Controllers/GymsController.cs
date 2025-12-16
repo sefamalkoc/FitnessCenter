@@ -7,106 +7,114 @@ using FitnessCenter.Models;
 namespace FitnessCenter.Controllers
 {
     [Authorize(Roles = "Admin")]
-    public class ServicesController : Controller
+    public class GymsController : Controller
     {
         private readonly ApplicationDbContext _context;
 
-        public ServicesController(ApplicationDbContext context)
+        public GymsController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // GET: Services
+        // GET: Gyms
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Services.ToListAsync());
+            return View(await _context.Gyms.ToListAsync());
         }
 
-        // GET: Services/Details/5
+        // GET: Gyms/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
-            var service = await _context.Services.FirstOrDefaultAsync(m => m.Id == id);
-            if (service == null) return NotFound();
-            return View(service);
+
+            var gym = await _context.Gyms.FirstOrDefaultAsync(m => m.Id == id);
+            if (gym == null) return NotFound();
+
+            return View(gym);
         }
 
-        // GET: Services/Create
+        // GET: Gyms/Create
         public IActionResult Create()
         {
             return View();
         }
 
+        // POST: Gyms/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,DurationMinutes,Price")] Service service)
+        public async Task<IActionResult> Create([Bind("Id,Name,WorkingHours,Location")] Gym gym)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(service);
+                _context.Add(gym);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(service);
+            return View(gym);
         }
 
-        // GET: Services/Edit/5
+        // GET: Gyms/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
-            var service = await _context.Services.FindAsync(id);
-            if (service == null) return NotFound();
-            return View(service);
+
+            var gym = await _context.Gyms.FindAsync(id);
+            if (gym == null) return NotFound();
+            return View(gym);
         }
 
+        // POST: Gyms/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,DurationMinutes,Price")] Service service)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,WorkingHours,Location")] Gym gym)
         {
-            if (id != service.Id) return NotFound();
+            if (id != gym.Id) return NotFound();
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(service);
+                    _context.Update(gym);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ServiceExists(service.Id)) return NotFound();
+                    if (!GymExists(gym.Id)) return NotFound();
                     else throw;
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(service);
+            return View(gym);
         }
 
-        // GET: Services/Delete/5
+        // GET: Gyms/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();
-            var service = await _context.Services.FirstOrDefaultAsync(m => m.Id == id);
-            if (service == null) return NotFound();
-            return View(service);
+
+            var gym = await _context.Gyms.FirstOrDefaultAsync(m => m.Id == id);
+            if (gym == null) return NotFound();
+
+            return View(gym);
         }
 
+        // POST: Gyms/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var service = await _context.Services.FindAsync(id);
-            if (service != null)
+            var gym = await _context.Gyms.FindAsync(id);
+            if (gym != null)
             {
-                _context.Services.Remove(service);
+                _context.Gyms.Remove(gym);
                 await _context.SaveChangesAsync();
             }
             return RedirectToAction(nameof(Index));
         }
 
-        private bool ServiceExists(int id)
+        private bool GymExists(int id)
         {
-            return _context.Services.Any(e => e.Id == id);
+            return _context.Gyms.Any(e => e.Id == id);
         }
     }
 }
