@@ -38,7 +38,17 @@ namespace FitnessCenter.Controllers
                 appointments = appointments.Where(a => a.MemberId == user.Id);
             }
 
-            return View(await appointments.ToListAsync());
+            var allAppointments = await appointments.ToListAsync();
+            var today = DateTime.Now.Date;
+            var timeNow = DateTime.Now.TimeOfDay;
+
+            var sortedAppointments = allAppointments
+                .OrderBy(a => a.Date < today || (a.Date == today && a.Time < timeNow)) // False (Future) first, True (Past) last
+                .ThenBy(a => a.Date)
+                .ThenBy(a => a.Time)
+                .ToList();
+
+            return View(sortedAppointments);
         }
 
         // GET: Appointments/Create
@@ -334,12 +344,15 @@ namespace FitnessCenter.Controllers
         [HttpGet]
         public async Task<JsonResult> GetTrainersByService(int serviceId)
         {
+            var service = await _context.Services.FindAsync(serviceId);
+            var price = service?.Price ?? 0;
+
             var trainers = await _context.Trainers
                 .Where(t => t.Specialties.Any(s => s.Id == serviceId))
                 .Select(t => new { id = t.Id, name = t.Name, availability = t.Availability })
                 .ToListAsync();
 
-            return Json(trainers);
+            return Json(new { trainers = trainers, price = price });
         }
     }
 }

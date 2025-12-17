@@ -4,14 +4,15 @@
     ViewData["Title"] = "Hizmetler";
 }
 
-<h1>Hizmetler</h1>
+<div class="container mt-5">
+    <h1>Hizmetler</h1>
 
 <p>
     <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Yeni Hizmet Ekle</a>
 </p>
-<table class="table table-striped">
-    <thead class="table-dark">
-        <tr>
+<table class="table table-dark table-hover align-middle">
+    <thead>
+        <tr class="text-uppercase" style="font-family: var(--font-heading); color: var(--primary-red);">
             <th>Hizmet Adı</th>
             <th>Süre (Dakika)</th>
             <th>Fiyat</th>
@@ -21,18 +22,18 @@
     <tbody>
 @foreach (var item in Model) {
         <tr>
-            <td>@item.Name</td>
+            <td class="fw-bold">@item.Name</td>
             <td>@item.DurationMinutes</td>
             <td>@item.Price.ToString("C", new System.Globalization.CultureInfo("tr-TR"))</td>
             <td>
                 <div class="btn-group" role="group">
-                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary" title="Düzenle">
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-light" title="Düzenle">
                         <i class="bi bi-pencil"></i>
                     </a>
-                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info" title="Detaylar">
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info ms-1" title="Detaylar">
                         <i class="bi bi-eye"></i>
                     </a>
-                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" title="Sil">
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger ms-1" title="Sil">
                         <i class="bi bi-trash"></i>
                     </a>
                 </div>
@@ -41,3 +42,4 @@
 }
     </tbody>
 </table>
+</div>

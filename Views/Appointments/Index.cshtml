@@ -21,9 +21,9 @@
     else
     {
         <div class="table-responsive">
-            <table class="table table-striped table-hover">
-                <thead class="table-dark">
-                    <tr>
+            <table class="table table-dark table-hover align-middle">
+                <thead>
+                    <tr class="text-uppercase" style="font-family: var(--font-heading); color: var(--primary-red);">
                         @if (User.IsInRole("Admin"))
                         {
                             <th>Üye</th>
@@ -38,36 +38,41 @@
                 </thead>
                 <tbody>
             @foreach (var item in Model) {
-                    <tr>
+                var isPast = item.Date.Date < DateTime.Now.Date || (item.Date.Date == DateTime.Now.Date && item.Time < DateTime.Now.TimeOfDay);
+                var rowClass = isPast ? "text-muted opacity-50" : "";
+                    <tr class="@rowClass">
                         @if (User.IsInRole("Admin"))
                         {
-                            <td>@item.Member?.FullName</td>
+                            <td class="fw-bold">@item.Member?.FullName</td>
                         }
-                        <td>@item.Date.ToString("dd.MM.yyyy")</td>
+                        <td>
+                            @item.Date.ToString("dd.MM.yyyy")
+                            @if(isPast) { <span class="badge bg-secondary ms-2" style="font-size: 0.7em;">GEÇMİŞ</span> }
+                        </td>
                         <td>@item.Time.ToString(@"hh\:mm")</td>
-                        <td>@item.Service?.Name</td>
+                        <td class="text-uppercase text-muted">@item.Service?.Name</td>
                         <td>@item.Trainer?.Name</td>
                         <td>
                             @if(item.Status == FitnessCenter.Models.AppointmentStatus.Approved)
                             {
-                                <span class="badge bg-success">✓ Onaylandı</span>
+                                <span class="badge bg-success rounded-pill px-3">✓ Onaylandı</span>
                             }
                             else if(item.Status == FitnessCenter.Models.AppointmentStatus.Pending)
                             {
-                                <span class="badge bg-warning text-dark">⏳ Beklemede</span>
+                                <span class="badge bg-warning text-dark rounded-pill px-3">⏳ Beklemede</span>
                             }
                             else if(item.Status == FitnessCenter.Models.AppointmentStatus.Cancelled)
                             {
-                                <span class="badge bg-danger">✗ İptal Edildi</span>
+                                <span class="badge bg-danger rounded-pill px-3">✗ İptal Edildi</span>
                             }
                             else
                             {
-                                <span class="badge bg-secondary">@item.Status</span>
+                                <span class="badge bg-secondary rounded-pill px-3">@item.Status</span>
                             }
                         </td>
                         <td>
                             <div class="btn-group" role="group">
-                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary" title="Düzenle">
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-light" title="Düzenle">
                                     <i class="bi bi-pencil"></i>
                                 </a>
                                 
@@ -75,7 +80,7 @@
                                 {
                                     <form asp-action="Approve" asp-route-id="@item.Id" method="post" class="d-inline">
                                         @Html.AntiForgeryToken()
-                                        <button type="submit" class="btn btn-sm btn-outline-success" title="Onayla" onclick="return confirm('Bu randevuyu onaylamak istediğinize emin misiniz?')">
+                                        <button type="submit" class="btn btn-sm btn-outline-success ms-1" title="Onayla" onclick="return confirm('Bu randevuyu onaylamak istediğinize emin misiniz?')">
                                             <i class="bi bi-check-circle"></i>
                                         </button>
                                     </form>
@@ -85,13 +90,13 @@
                                 {
                                     <form asp-action="Cancel" asp-route-id="@item.Id" method="post" class="d-inline">
                                         @Html.AntiForgeryToken()
-                                        <button type="submit" class="btn btn-sm btn-outline-warning" title="İptal Et" onclick="return confirm('Bu randevuyu iptal etmek istediğinize emin misiniz?')">
+                                        <button type="submit" class="btn btn-sm btn-outline-warning ms-1" title="İptal Et" onclick="return confirm('Bu randevuyu iptal etmek istediğinize emin misiniz?')">
                                             <i class="bi bi-x-circle"></i>
                                         </button>
                                     </form>
                                 }
                                 
-                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" title="Sil">
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger ms-1" title="Sil">
                                     <i class="bi bi-trash"></i>
                                 </a>
                             </div>

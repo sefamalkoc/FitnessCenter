@@ -32,15 +32,19 @@ namespace FitnessCenter.Controllers
             {
                 // Find user by email (username is set to email in seed)
                 var user = await _userManager.FindByEmailAsync(model.Email);
-                if (user != null)
+                if (user == null)
                 {
-                    var result = await _signInManager.PasswordSignInAsync(user.UserName!, model.Password, isPersistent: false, lockoutOnFailure: false);
+                    ModelState.AddModelError(string.Empty, "Bu email adresine kayıtlı bir kullanıcı bulunamadı.");
+                }
+                else
+                {
+                    var result = await _signInManager.PasswordSignInAsync(user.UserName!, model.Password, isPersistent: model.RememberMe, lockoutOnFailure: false);
                     if (result.Succeeded)
                     {
                         return LocalRedirect(model.ReturnUrl);
                     }
+                    ModelState.AddModelError(string.Empty, "Girdiğiniz şifre hatalı.");
                 }
-                ModelState.AddModelError(string.Empty, "Geçersiz giriş denemesi.");
             }
             return View(model);
         }

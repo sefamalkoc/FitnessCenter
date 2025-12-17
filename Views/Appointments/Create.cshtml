@@ -68,18 +68,15 @@
             </form>
         </div>
         <div class="col-md-6">
-            <!-- Mock AI Suggestion -->
-            <div class="alert alert-info">
-                <h5><i class="bi bi-lightbulb"></i> Yapay Zeka Önerisi</h5>
-                <p>Profilinize göre, uzman antrenörlerimizden biriyle <strong>Pilates</strong> seansı denemenizi öneriyoruz!</p>
-            </div>
+            <!-- Price Display Area -->
+            <div class="card bg-dark text-white border-secondary h-100 d-flex justify-content-center align-items-center">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-muted text-uppercase mb-3">Seçilen Hizmet Bedeli</h5>
+                    <div id="price-container">
+                        <h1 class="display-4 fw-bold text-danger" id="service-price-display">0,00 ₺</h1>
+                    </div>
 
-            <!-- API Data Area -->
-            <div id="api-results" class="mt-4">
-                <h6>Müsait Antrenörler (API'den):</h6>
-                <ul id="trainer-list" class="list-group">
-                    <!-- Loaded via AJAX -->
-                </ul>
+                </div>
             </div>
         </div>
     </div>
@@ -119,23 +116,33 @@
 
             var serviceSelect = $("#ServiceId");
             var trainerSelect = $("#TrainerId");
+            var priceDisplay = $("#service-price-display");
 
-            // Hizmet seçildiğinde antrenörleri getir
+            // Hizmet seçildiğinde antrenörleri ve fiyatı getir
             serviceSelect.change(function() {
                 var serviceId = $(this).val();
 
                 // Listeyi temizle ve varsayılanı ekle
                 trainerSelect.empty();
                 trainerSelect.append('<option value="">-- Antrenör seçiniz --</option>');
+                priceDisplay.text("0,00 ₺"); // Fiyatı sıfırla
 
                 if (serviceId) {
                     trainerSelect.prop('disabled', true); // Yüklenirken devre dışı bırak
                     $.getJSON("/Appointments/GetTrainersByService", { serviceId: serviceId }, function(data) {
-                        $.each(data, function(i, item) {
-                            // Store availability in data attribute
+                        // data.trainers -> List
+                        // data.price -> Decimal
+                        
+                        // Update Trainers
+                        $.each(data.trainers, function(i, item) {
                             var option = $('<option>').val(item.id).text(item.name).attr('data-availability', item.availability);
                             trainerSelect.append(option);
                         });
+
+                        // Update Price
+                        var formattedPrice = new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(data.price);
+                        priceDisplay.text(formattedPrice);
+
                         trainerSelect.prop('disabled', false); // Yüklendi, aktif et
                     });
                 }

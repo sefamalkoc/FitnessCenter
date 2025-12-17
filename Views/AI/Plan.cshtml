@@ -1,0 +1,91 @@
+@model FitnessCenter.Models.FitnessPlanRequest
+@{
+    ViewData["Title"] = "Plan Oluştur";
+    var result = ViewBag.Result as FitnessCenter.Models.FitnessPlanResult;
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
+                    <h2 class="fw-bold text-primary"><i class="bi bi-clipboard-check me-2"></i>Fitness Planı Oluştur</h2>
+                    <p class="text-muted">Size özel yapay zeka önerileri almak için bilgilerinizi girin.</p>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="Plan" method="post">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label asp-for="Age" class="form-label fw-bold">Yaş</label>
+                                <input asp-for="Age" class="form-control" type="number" min="10" max="100" />
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Gender" class="form-label fw-bold">Cinsiyet</label>
+                                <select asp-for="Gender" class="form-select">
+                                    <option value="">Seçiniz</option>
+                                    <option value="Erkek">Erkek</option>
+                                    <option value="Kadın">Kadın</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Height" class="form-label fw-bold">Boy (cm)</label>
+                                <input asp-for="Height" class="form-control" type="number" />
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Weight" class="form-label fw-bold">Kilo (kg)</label>
+                                <input asp-for="Weight" class="form-control" type="number" />
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="BodyType" class="form-label fw-bold">Vücut Tipi</label>
+                                <select asp-for="BodyType" class="form-select">
+                                    <option value="">Seçiniz</option>
+                                    <option value="Ectomorph">Ektomorf (Zayıf)</option>
+                                    <option value="Mesomorph">Mezomorf (Kaslı)</option>
+                                    <option value="Endomorph">Endomorf (Kıvrımlı/Hafif Kilolu)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Goal" class="form-label fw-bold">Fitness Hedefi</label>
+                                <select asp-for="Goal" class="form-select">
+                                    <option value="">Seçiniz</option>
+                                    <option value="Kilo Vermek">Kilo Vermek</option>
+                                    <option value="Kas Yapmak">Kas Yapmak</option>
+                                    <option value="Dayanıklılık">Dayanıklılık Artırmak</option>
+                                    <option value="Genel Sağlık">Genel Sağlık</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-12 mt-4">
+                                <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">
+                                    <i class="bi bi-cpu me-2"></i>Planı Oluştur
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            @if (result != null)
+            {
+                <div class="card border-0 shadow mt-5 animate__animated animate__fadeInUp">
+                    <div class="card-header bg-success text-white">
+                        <h4 class="mb-0 fw-bold"><i class="bi bi-check-circle me-2"></i>Size Özel Planınız</h4>
+                    </div>
+                    <div class="card-body p-4 bg-light">
+                        <div class="markdown-content">
+                             @if (!string.IsNullOrEmpty(result.PlanContent))
+                            {
+                                var htmlContent = result.PlanContent
+                                    .Replace("\n", "<br>")
+                                    .Replace("###", "<h4>") 
+                                    .Replace("**", "<strong>"); 
+                                
+                                @Html.Raw(htmlContent)
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

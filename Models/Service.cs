@@ -16,6 +16,7 @@ namespace FitnessCenter.Models
 
         [Required]
         [DataType(DataType.Currency)]
+        [System.ComponentModel.DataAnnotations.Schema.Column(TypeName = "decimal(18, 2)")]
         public decimal Price { get; set; }
 
         public virtual ICollection<Trainer> Trainers { get; set; } = new List<Trainer>();

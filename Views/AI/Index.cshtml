@@ -1,0 +1,38 @@
+@{
+    ViewData["Title"] = "Yapay Zeka Özellikleri";
+}
+
+<div class="container mt-5">
+    <div class="text-center mb-5">
+        <h1 class="display-3 fw-bold text-white" style="letter-spacing: 2px;">YAPAY ZEKA DESTEĞİ</h1>
+        <div style="width: 80px; height: 4px; background-color: var(--primary-red); margin: 20px auto;"></div>
+        <p class="lead text-muted">Fitness yolculuğunuzu Yapay Zeka ile bir üst seviyeye taşıyın.</p>
+    </div>
+
+    <div class="row justify-content-center g-4">
+        <div class="col-md-5">
+            <div class="card h-100 shadow-sm hover-effect border-0" style="background: linear-gradient(145deg, #1e1e1e, #141414);">
+                <div class="card-body text-center p-5">
+                    <div class="mb-4" style="color: var(--primary-red);">
+                        <i class="bi bi-clipboard-data" style="font-size: 3rem;"></i>
+                    </div>
+                    <h3 class="card-title fw-bold text-white">KİŞİSEL PLAN</h3>
+                    <p class="card-text text-muted mb-4">Vücut bilgilerinize ve hedeflerinize göre size özel diyet ve antrenman planı.</p>
+                    <a asp-action="Plan" class="btn btn-primary btn-lg w-100">PLAN OLUŞTUR</a>
+                </div>
+            </div>
+        </div>
+        
+
+    </div>
+</div>
+
+<style>
+    .hover-effect {
+        transition: transform 0.3s ease;
+    }
+    .hover-effect:hover {
+        transform: translateY(-10px);
+        border: 1px solid var(--primary-red) !important;
+    }
+</style>
