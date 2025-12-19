@@ -23,7 +23,7 @@ namespace FitnessCenter.Data
             }
 
             // Create Admin User
-            var adminEmail = "ogrencinumarasi@sakarya.edu.tr";
+            var adminEmail = "b221210043@sakarya.edu.tr";
             var adminUser = await userManager.FindByEmailAsync(adminEmail);
 
             if (adminUser == null)
